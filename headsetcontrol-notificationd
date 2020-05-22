@@ -1,0 +1,128 @@
+#!/usr/bin/php
+<?php
+/* 
+ * HeadsetControl-Notificationd
+ * Written in 2020 by Tobias Mädel (@manawyrm).
+ * 
+ * This program is free software: you can redistribute it and/or modify  
+ * it under the terms of the GNU General Public License as published by  
+ * the Free Software Foundation, version 3.
+ *
+ * This program is distributed in the hope that it will be useful, but 
+ * WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License 
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+$config = [
+	"thresholdWarning" => 30,
+	"thresholdEmpty" => 10,
+	"pollingInterval" => 3,
+	"debug" => false
+];
+
+$knownDevices = [];
+
+while (true)
+{
+	if (isset($config['debug']) && $config['debug'])
+		echo "Polling...\n";
+
+	$hscOutput = `headsetcontrol -b`;
+	$hscOutputSplit = explode("Found ", $hscOutput);
+	if (count($hscOutputSplit) > 1)
+	{
+		$hscData = explode("\n", $hscOutputSplit[1]);
+		$hscData[0] = rtrim($hscData[0], "!");
+
+		$name = $hscData[0];
+
+		// Parse battery level
+		$stateParse = explode(": ", $hscData[2]);
+		if (count($stateParse) > 1)
+		{
+			$state = trim(rtrim($stateParse[1], "%"));
+
+			if (isset($knownDevices[$name]))
+			{
+				stateChanged($name, $state);
+			}
+			else
+			{
+				$knownDevices[$name] = [
+					"battery" => $state
+				];
+			}
+
+			if (isset($config['debug']) && $config['debug'])
+				var_dump($knownDevices);
+		}
+	}
+
+	sleep($config['pollingInterval']);
+}
+
+function stateChanged($name, $newState)
+{
+	global $knownDevices, $config;
+
+	if ($knownDevices[$name]['battery'] != $newState)
+	{
+		$oldState = $knownDevices[$name]['battery'];
+
+		if ($newState == "Charging")
+		{
+			sendNotification($name, "Charger connected!", "battery");
+		}
+		else
+		{
+			$newStateInt = (int) $newState;
+			if ($oldState == "Charging")
+			{
+				sendNotification($name, "Charger disconnected!", "battery");
+				$oldStateInt = 100;
+			}
+			else
+			{
+				$oldStateInt = (int) $oldState;
+			}
+
+			if (isset($config['debug']) && $config['debug'])
+			{
+				var_dump("Old state int: " . $oldStateInt);
+				var_dump("New state int: " . $newStateInt);
+			}
+
+			// Show warning if the battery is empty
+			if ($newStateInt < $config['thresholdEmpty'] && $oldStateInt >= $config['thresholdEmpty'])
+			{
+				sendNotification($name, "Battery level " . $newStateInt . "%", "battery-low");
+			}
+			else
+			{
+				// Show warning if the battery is low
+				if ($newStateInt < $config['thresholdWarning'] && $oldStateInt >= $config['thresholdWarning'])
+				{
+					sendNotification($name, "Battery level " . $newStateInt . "%", "battery-caution");
+				}
+				else
+				{
+					// Only show battery level, if the last state was Charging
+					if ($oldState == "Charging")
+					{
+						sendNotification($name, "Battery level " . $newStateInt . "%", "battery");
+					}
+				}
+			}
+		}
+
+	}
+	$knownDevices[$name]['battery'] = $newState;
+}
+
+function sendNotification($name, $text, $icon)
+{
+	exec("notify-send ".escapeshellarg($name)." ".escapeshellarg($text)." --icon=" .escapeshellarg($icon));
+}

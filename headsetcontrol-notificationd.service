@@ -1,0 +1,10 @@
+[Unit]
+Description=Headsetcontrol-Notificationd
+
+[Service]
+ExecStart=/usr/local/bin/headsetcontrol-notificationd
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target
