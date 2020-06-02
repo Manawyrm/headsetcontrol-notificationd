@@ -23,6 +23,6 @@ sudo cp headsetcontrol-notificationd.service /etc/systemd/user/headsetcontrol-no
 sudo cp headsetcontrol-notificationd /usr/local/bin/headsetcontrol-notificationd
 sudo chmod +x /usr/local/bin/headsetcontrol-notificationd
 
-systemctl daemon-reload
-systemctl --user enable --now headsetcontrol-notificationd
+sudo systemctl daemon-reload
+sudo systemctl --user enable --now headsetcontrol-notificationd
 ```
