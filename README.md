@@ -19,9 +19,10 @@ on Arch: `headsetcontrol` (AUR) and `php` (extra)
 git clone https://github.com/manawyrm/headsetcontrol-notificationd
 cd headsetcontrol-notificationd
 
-sudo cp headsetcontrol-notificationd.service /etc/systemd/user/headsetcontrol-notificationd.service.
+sudo cp headsetcontrol-notificationd.service /etc/systemd/user/headsetcontrol-notificationd.service
 sudo cp headsetcontrol-notificationd /usr/local/bin/headsetcontrol-notificationd
 sudo chmod +x /usr/local/bin/headsetcontrol-notificationd
 
+systemctl daemon-reload
 systemctl --user enable --now headsetcontrol-notificationd
 ```
