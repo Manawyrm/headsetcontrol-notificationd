@@ -10,9 +10,11 @@ headsetcontrol-notificationd was hacked together in PHP and polls the headsetcon
 This isn't an elegant solution at all, but it works (pretty well).  
 
 ### Requirements
-php-cli and HeadsetControl  
+php-cli, HeadsetControl and notify-send  
 
-on Arch: `headsetcontrol` (AUR) and `php` (extra)
+on Arch: `headsetcontrol` (AUR), `php` (extra) and `libnotify` (extra)
+
+You will also need a notification daemon if you are not using a desktop environment.
 
 ### Installation
 ```
