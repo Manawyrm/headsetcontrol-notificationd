@@ -5,6 +5,9 @@
 headsetcontrol-notificationd is a small daemon that polls headsetcontrol to display notifications about the charge status of several headsets.  
 For a list of supported devices please check [Sapd/HeadsetControl](https://github.com/Sapd/HeadsetControl).  
 
+**Simon Ingelsson rewrote this daemon in pure bash:**  
+https://gitlab.com/devnore/headsetcontrol-notificationd
+
 ### "Design"
 headsetcontrol-notificationd was hacked together in PHP and polls the headsetcontrol executable at a configurable interval. 
 This isn't an elegant solution at all, but it works (pretty well).  
