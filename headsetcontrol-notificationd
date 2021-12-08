@@ -40,7 +40,7 @@ while (true)
 		$name = $hscData[0];
 
 		// Parse battery level
-		$stateParse = explode(": ", $hscData[2]);
+		$stateParse = explode(": ", $hscData[1]);
 		if (count($stateParse) > 1)
 		{
 			$state = trim(rtrim($stateParse[1], "%"));
